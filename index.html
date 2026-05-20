@@ -1,0 +1,668 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!--
+  ============================================================
+  PAGE TITLE
+  Change this to whatever you want shown in the browser tab.
+  ============================================================
+  -->
+  <title>My Collection</title>
+
+  <!--
+  ============================================================
+  GOOGLE FONTS
+  These two fonts are loaded from Google Fonts for free.
+  - "Cormorant Garamond" → used for headings (elegant, editorial)
+  - "DM Mono" → used for quotes and body text (clean, modern)
+
+  To swap fonts, visit https://fonts.google.com, pick two you
+  like, copy the @import URL they give you, and replace this one.
+  ============================================================
+  -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Mono:ital@0;1&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* ==========================================================
+       CSS CUSTOM PROPERTIES (variables)
+       These are your "theme knobs." Change values here and they
+       update everywhere on the page automatically.
+       ========================================================== */
+    :root {
+      --title:         #000000;   /* page background */
+      --bg:         #000000;   /* page background */
+      --surface:    #1a1916;   /* card background */
+      --border:     #3abe40;   /* subtle borders */
+      --accent:     #e7fce6;   /* gold accent — headings, hover rings */
+      --text:       #d4cfc6;   /* main body text */
+      --muted:      #7a766d;   /* secondary / metadata text */
+      --quote-bg:   #141310;   /* quote area background */
+
+      --font-head:  'Cormorant Garamond', Georgia, serif;
+      --font-body:  'DM Mono', 'Courier New', monospace;
+
+      --card-radius: 4px;      /* corner rounding on cards */
+      --gap:         2rem;     /* space between grid cards */
+      --page-pad:    clamp(1.5rem, 5vw, 4rem); /* responsive side padding */
+    }
+
+    /* ==========================================================
+       RESET & BASE
+       ========================================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;   /* fills the box without stretching */
+    }
+
+    /* ==========================================================
+       SITE HEADER
+       ========================================================== */
+    header {
+      padding: 3rem var(--page-pad) 2rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: baseline;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    /*
+    -----------------------------------------------
+    SITE NAME
+    Change the text inside <h1> in the HTML below.
+    -----------------------------------------------
+    */
+    header h1 {
+      font-family: var(--font-head);
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    /*
+    -----------------------------------------------
+    SITE TAGLINE / SUBTITLE
+    Change the text inside <p class="tagline"> below.
+    -----------------------------------------------
+    */
+    header .tagline {
+      color: var(--muted);
+      font-style: italic;
+      font-size: 0.8rem;
+    }
+
+    /* ==========================================================
+       NAVIGATION / CATEGORY TABS
+       Each <button> in <nav> filters the grid by category.
+       See the "ADDING A NEW CATEGORY" comment in the HTML section.
+       ========================================================== */
+    nav {
+      padding: 1.25rem var(--page-pad);
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav button {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      padding: 0.35rem 0.9rem;
+      border-radius: 2px;
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+
+    nav button:hover,
+    nav button.active {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: rgba(200, 169, 110, 0.06);
+    }
+
+    /* ==========================================================
+       MAIN CONTENT WRAPPER
+       ========================================================== */
+    main {
+      padding: var(--gap) var(--page-pad);
+    }
+
+    /* ==========================================================
+       SECTION GROUPS
+       Each <section> groups cards under a heading.
+       Sections are optional — you can put all cards in one section
+       or split them however you like.
+       ========================================================== */
+    .collection-section {
+      margin-bottom: 3.5rem;
+    }
+
+    .collection-section h2 {
+      font-family: var(--font-head);
+      font-size: 1.4rem;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ==========================================================
+       PHOTO GRID
+       CSS Grid auto-fills columns: each is at least 260px wide,
+       expanding to fill space. Change 260px to make cards smaller
+       or larger. Add more columns by changing "auto-fill" to a
+       fixed number like "repeat(4, 1fr)".
+       ========================================================== */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: var(--gap);
+    }
+
+    /* ==========================================================
+       MEDIA CARD
+       One card = one photo + its quote + metadata.
+
+       HOW TO ADD A CARD: copy one of the <article class="card">
+       blocks in the HTML below, paste it inside a .grid, and fill
+       in your own image, title, date, category, and quote.
+       ========================================================== */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--card-radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.25s, transform 0.25s;
+      cursor: default;
+
+      /*
+      Cards fade in on page load with a staggered delay.
+      The delay is set per-card via inline style in the HTML.
+      Remove the animation-* lines here if you don't want that.
+      */
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .card:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* --- PHOTO AREA ------------------------------------------ */
+    .card-img-wrap {
+      /*
+      Controls the photo's aspect ratio.
+      "3 / 2" = landscape. "1 / 1" = square. "4 / 5" = portrait.
+      You can override this per-card with an inline style.
+      */
+      aspect-ratio: 3 / 2;
+      background: #111;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-img-wrap img {
+      transition: transform 0.4s ease;
+    }
+
+    .card:hover .card-img-wrap img {
+      transform: scale(1.04); /* subtle zoom on hover */
+    }
+
+    /*
+    Placeholder shown when no <img> src is provided.
+    Remove this block once all cards have real images.
+    */
+    .card-img-wrap .placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--border);
+      font-size: 2.5rem;
+      letter-spacing: 0.05em;
+    }
+
+    /* --- CARD BODY ------------------------------------------- */
+    .card-body {
+      padding: 1rem;
+      flex: 1;                /* takes up remaining height */
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    /* Card title */
+    .card-title {
+      font-family: var(--font-head);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    /* Small metadata row — date, category tag, etc. */
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+
+    .card-meta .tag {
+      background: rgba(200, 169, 110, 0.1);
+      color: var(--accent);
+      border: 1px solid rgba(200, 169, 110, 0.25);
+      padding: 0.1rem 0.5rem;
+      border-radius: 2px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: 0.68rem;
+    }
+
+    /* --- QUOTE AREA ------------------------------------------ */
+    /*
+    The quote lives below the photo and metadata.
+    Just type your quote inside <blockquote class="card-quote">.
+    Leave it empty (<blockquote class="card-quote"></blockquote>)
+    and it will collapse to nothing.
+    */
+    .card-quote {
+      background: var(--quote-bg);
+      border-left: 2px solid var(--accent);
+      margin: 0;
+      padding: 0.75rem 0.9rem;
+      font-style: italic;
+      color: var(--text);
+      font-size: 0.82rem;
+      line-height: 1.65;
+      border-radius: 0 2px 2px 0;
+    }
+
+    .card-quote:empty { display: none; } /* hides if no quote */
+
+    /* optional attribution line inside a quote */
+    .card-quote cite {
+      display: block;
+      margin-top: 0.4rem;
+      font-style: normal;
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+
+    /* ==========================================================
+       LIGHTBOX
+       Clicking a card opens a larger view with the full quote.
+       ========================================================== */
+    #lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(6px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    #lightbox.open { display: flex; }
+
+    #lightbox-inner {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--card-radius);
+      max-width: 760px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      animation: fadeUp 0.3s ease both;
+    }
+
+    #lightbox-img {
+      width: 100%;
+      max-height: 460px;
+      object-fit: contain;
+      background: #111;
+    }
+
+    #lightbox-content {
+      padding: 1.25rem 1.5rem 1.5rem;
+    }
+
+    #lightbox-title {
+      font-family: var(--font-head);
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 0.3rem;
+    }
+
+    #lightbox-meta { color: var(--muted); font-size: 0.75rem; margin-bottom: 0.9rem; }
+
+    #lightbox-quote {
+      font-style: italic;
+      line-height: 1.8;
+      border-left: 2px solid var(--accent);
+      padding-left: 1rem;
+      color: var(--text);
+    }
+
+    #lightbox-quote:empty { display: none; }
+
+    #lightbox-close {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      padding: 0.25rem 0.6rem;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    #lightbox-close:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* ==========================================================
+       FOOTER
+       ========================================================== */
+    footer {
+      padding: 2rem var(--page-pad);
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    /* ==========================================================
+       HIDDEN CLASS (used by JS category filter)
+       ========================================================== */
+    .hidden { display: none !important; }
+
+    /* ==========================================================
+       RESPONSIVE TWEAKS
+       ========================================================== */
+    @media (max-width: 500px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       SITE HEADER
+       Change the h1 text to your collection's name.
+       Change the tagline to whatever subtitle you like.
+       ============================================================ -->
+  <header>
+    <h1>Green Light operators </h1>
+    <p class="tagline">Real targets, Real situations, black people</p>
+  </header>
+
+  <!-- ============================================================
+       CATEGORY NAVIGATION
+       Each button filters the grid to show only cards whose
+       data-category matches the button's data-filter attribute.
+
+       HOW TO ADD A NEW CATEGORY:
+         1. Add a button here:
+              <button data-filter="yourcategory">Label</button>
+         2. Add data-category="yourcategory" to each card
+            that belongs to it.
+         That's all — the JS handles the rest.
+       ============================================================ -->
+  <nav>
+    <button class="active" data-filter="all">All</button>
+    <button data-filter="Bounties">Bounties</button>
+    <button data-filter="Streaks">Streaks</button>
+    <button data-filter="Players">Players</button>
+    <button data-filter="Deceased">Mortuary</button>
+    <!--  ← add more category buttons here  -->
+  </nav>
+
+  <main>
+
+    <!-- ==========================================================
+         COLLECTION SECTION
+         Wrap related cards in a <section class="collection-section">
+         with an <h2> heading. You can have as many sections as you
+         want, or delete them and put all cards in one flat .grid.
+         ========================================================== -->
+    <section class="collection-section">
+      <h2>Recent</h2>
+
+      <div class="grid">
+
+
+        
+
+        <!--
+        ============================================================
+        ADD MORE CARDS HERE
+        Copy any card block above, paste it below this comment,
+        and update the content. Increment animation-delay by 0.05s
+        for each new card so they stagger nicely.
+        ============================================================
+        --> <article
+          class="card"
+          data-category="Bounties"
+          data-title="Kann"
+          data-date="Placed by: ERROR"
+          data-quote="Bounty Payout: 238,000NC"
+          data-quote2="Bounty Payout: 238,000NC"
+          style="animation-delay: 0.05s"
+        >
+          <div class="card-img-wrap">
+            <!--
+              Replace src="" with your image path, e.g.:
+                src="photos/lisbon.jpg"
+                src="https://example.com/image.jpg"
+              If src is empty, the placeholder text shows instead.
+            -->
+            <img src="XBOX 360 Gamer Picture by ZackZiegler _ Redbubble.jpg" alt="Golden Hour, Lisbon" />
+            <div class="placeholder"></div>
+          </div>
+
+          <div class="card-body">
+            <div class="card-title">Kann</div>
+            <div class="card-meta">
+              <span>238,000NC</span>
+              <span class="tag">Bounties</span>
+            </div>
+
+            <!--
+              Type your quote between the blockquote tags.
+              Keep it short here — the full version goes in data-quote above.
+              Leave completely empty to hide the quote area.
+            -->
+            <blockquote class="card-quote">
+             5,11<br>
+             White<br>
+             Avondale Area
+
+            </blockquote>
+          </div>
+        </article>
+        <!-- END CARD -->
+
+      </div><!-- end .grid -->
+    </section>
+    <!-- END SECTION -->
+
+
+    <!-- ==========================================================
+         ADD MORE SECTIONS HERE
+         Copy the <section class="collection-section"> block above,
+         paste it below, change the <h2> heading, and fill in cards.
+         ========================================================== -->
+
+
+  </main>
+
+  <!-- ============================================================
+       FOOTER
+       ============================================================ -->
+  <footer>
+    <!--  Change the left side to your name or site title  -->
+    <span>My Collection</span>
+    <!--  Change or remove the right side as you like  -->
+    <span>Click any card to expand</span>
+  </footer>
+
+
+  <!-- ============================================================
+       LIGHTBOX OVERLAY
+       This is generated automatically by JS — don't edit the IDs.
+       ============================================================ -->
+  <div id="lightbox" role="dialog" aria-modal="true" aria-label="Photo detail">
+    <div id="lightbox-inner">
+      <button id="lightbox-close" aria-label="Close">✕ close</button>
+      <img id="lightbox-img" src="" alt="" />
+      <div id="lightbox-content">
+        <div id="lightbox-title"></div>
+        <div id="lightbox-meta"></div>
+        <blockquote id="lightbox-quote"></blockquote>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================================
+       JAVASCRIPT
+       Three small features:
+         1. Category filter (nav buttons)
+         2. Lightbox (click to expand a card)
+         3. Keyboard / click-outside close for lightbox
+       ============================================================ -->
+  <script>
+    /* ----------------------------------------------------------
+       1. CATEGORY FILTER
+       Reads data-filter from each nav button and compares it to
+       data-category on each card. "all" shows everything.
+       ---------------------------------------------------------- */
+    const filterButtons = document.querySelectorAll('nav button');
+    const cards = document.querySelectorAll('.card');
+
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Update active button style
+        filterButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const filter = btn.dataset.filter;
+
+        cards.forEach(card => {
+          if (filter === 'all' || card.dataset.category === filter) {
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+      });
+    });
+
+
+    /* ----------------------------------------------------------
+       2. LIGHTBOX
+       Pulls title, date, category, and full quote from the card's
+       data attributes and the img src, then shows them in the
+       #lightbox overlay.
+       ---------------------------------------------------------- */
+    const lightbox      = document.getElementById('lightbox');
+    const lbImg         = document.getElementById('lightbox-img');
+    const lbTitle       = document.getElementById('lightbox-title');
+    const lbMeta        = document.getElementById('lightbox-meta');
+    const lbQuote       = document.getElementById('lightbox-quote');
+    const lbClose       = document.getElementById('lightbox-close');
+
+    cards.forEach(card => {
+      card.addEventListener('click', () => {
+        const img = card.querySelector('img');
+
+        lbImg.src        = img ? img.src : '';
+        lbImg.alt        = card.dataset.title || '';
+        lbTitle.textContent = card.dataset.title  || '';
+        lbMeta.textContent  = `${card.dataset.date || ''}  ·  ${card.dataset.category || ''}`;
+        lbQuote.textContent = card.dataset.quote  || '';
+
+        // Hide img element if there's no real src
+        lbImg.style.display = img && img.src && !img.src.endsWith('/') ? 'block' : 'none';
+
+        lightbox.classList.add('open');
+        document.body.style.overflow = 'hidden'; // prevent background scroll
+      });
+    });
+
+
+    /* ----------------------------------------------------------
+       3. CLOSE LIGHTBOX
+       Closes on button click, Escape key, or clicking the backdrop.
+       ---------------------------------------------------------- */
+    function closeLightbox() {
+      lightbox.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    lbClose.addEventListener('click', closeLightbox);
+
+    // Close when clicking the dark backdrop (not the inner box)
+    lightbox.addEventListener('click', e => {
+      if (e.target === lightbox) closeLightbox();
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+  </script>
+
+</body>
+</html>
